@@ -3,10 +3,11 @@
 #
 #
 
-from Tkinter import *
-from tkFileDialog import askopenfilename
-from sets import Set
-import tkFileDialog, csv, random, re
+
+
+from tkinter import *
+from tkinter.filedialog import askopenfilename
+import tkinter.filedialog, csv, random, re
 class mywidgets:
 	def __init__(self,root):
 	
@@ -29,13 +30,13 @@ class mywidgets:
 		
 	
 	def setSvariables(self):
-		print "setting svariables"
+		print ("setting svariables")
 		text = self.text.get(1.0, END)
 		m = re.findall(r'\#\${1}([a-z]+[0-9]*|[0-9]+[a-z]*)', text)
 		for token in m:
 			if not token  in self.svariables:
 				self.svariables[token]  = ''
-				print "adding %s " % token
+				print ("adding %s " % token)
 			
 		
 		
@@ -56,7 +57,7 @@ class mywidgets:
 		self.setSvariables()
 		
 		count = 0
-		for k,v in self.svariables.iteritems():
+		for k,v in self.svariables.items():
 			if not k in self.tentries:
 				Label(gridFrame, text=k).grid(row=count)
 				self.tentries[k] = Entry(gridFrame)
@@ -79,10 +80,10 @@ class mywidgets:
 			self.text.insert(END,text.replace("#$"+r,self.tentries[r].get()))
 		
 	def openDefault(self):
-		print "Opening Default"
+		print ("Opening Default")
 		self.text.delete(1.0, END)
 		self.textraw.delete(1.0, END)
-		file = csv.reader(open(self.filename, 'rb'), delimiter=',', quotechar='"')
+		file = csv.reader(open(self.filename, 'rt'), delimiter=',', quotechar='"')
 		if file != None:
 			count = 0
 			data = []
@@ -91,7 +92,7 @@ class mywidgets:
 				data.append(row)
 			
 			rowx = random.choice(data)
-			print "There are %d rows.   Choosing at random row" % (count)
+			print ("There are %d rows.   Choosing at random row" % (count))
 			
 			self.textraw.insert(END,"Article Spinning  From File Row \n\n"  )
 			xcount = 0
@@ -118,13 +119,13 @@ class mywidgets:
 			
 	
 	def spinArticle(self,data):
-		print "Spinning Article Now"
+		print ("Spinning Article Now")
 		
 		article = []
 		scount = 0
 		for sentence in data:
 			scount += 1
-			print scount
+			print (scount)
 			article.append(self.spinSentence(sentence))
 			
 		return article
@@ -132,19 +133,20 @@ class mywidgets:
 	def spinSentence(self,SpinSentence):
 		sentence = ''
 		if SpinSentence[0] == '{':
-			print "removing brace {"
+			print ("removing brace {")
 			sentence = SpinSentence[1:]
 		else:
 			sentence = SpinSentence
 		if SpinSentence[-1] == '}':
 			sentence = sentence[:-1]
-			print "removing brace }"
+			print ("removing brace }")
 			
 		
 		def wordReplace( match ):
 			choices = match.group().split("|")
-			print choices
-			return " %s " % random.choice(choices).translate(None, '{}') 
+			print (choices)
+			return " %s " % random.choice(choices).translate(dict.fromkeys(map(ord, u"{}")))
+			
 		p = re.compile(r'\{([a-zA-Z0-9_\.-\|\s#$]+)\}')
 		spunSentence = p.sub(wordReplace, sentence)
 		return spunSentence.replace('  ',' ') 
